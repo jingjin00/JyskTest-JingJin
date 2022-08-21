@@ -1,0 +1,145 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://en.wikipedia.org/wiki/Roman_numerals" target="_blank">roman number</a>.</p>
+    <p></p>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12 col-sm-6 col-md-4 order-0 order-sm-1">
+            <div class="text-center rounded-top text-white h6 bg-info p-3 m-0" style="background-color:blue">Roman number converter</div>
+
+            <div class="card">
+                <div class="card-body">
+                    <img class="card-img-top" src="~/css/images/number.png" alt="Roman number">
+                    <form class="needs-validation">
+                        <div class="form-group">
+                            <small class="form-text text-muted">Convert between roman and decimal numbers</small>
+                            <input type="text" class="form-control" id="inputNumber" placeholder="Roman number / Decimal number" required>
+                            <div class="invalid-feedback" id="invilde-message">
+                                This is neither a roman number nor decimal
+                            </div>
+                        </div>
+
+                    </form>
+                    <div id="message">Result: <span class="font-weight-bold" id="messageResult"> </span> </div>
+                    <button type="button" id="buttonClear" class="btn btn-info">Clear</button>
+                    <button type="submit" id="buttonCalculate" class="btn btn-info float-right">Calculate</button>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-8 order-1 order-sm-0">
+            <div class="card">
+
+                <div class="card-body">
+                    <h5 class="card-title">Romertal</h5>
+                    <p class="card-text">
+                        Implementer en løsning, som kan konvertere romertal til decimalværdi og fra
+                        decimalværdi til romertal. Reglerne for romertal varierer, men de regler vi
+                        arbejder ud fra er beskrevet som nedenstående.
+                    </p>
+                    <p>
+                        I vores vurdering vil vi lægge vægt på design, vedligeholdelsesvenlighed og testdækning.
+                        Det er vores forventning, at du beviser dine kompetencer indenfor disse felter i din løsning,
+                        Du bør bruge højest fem timer på opgaveløsningen og ser, hvor langt du kommer. Det betyder
+                        mindre, om løsningen er komplet.
+                        Syv bogstaver betegner tallene i det romerske system:
+                        <ul>
+                            <li> I = 1</li>
+                            <li> V = 5</li>
+                            <li>X = 10</li>
+                            <li>L = 50</li>
+                            <li>C = 100</li>
+                            <li>D = 500</li>
+                            <li> M = 1000</li>
+                        </ul>
+
+                        Regler:
+                        <ul>
+                            <li>Hvis det samme romertal skrives efter hinanden, lægges tallet til</li>
+                            <li>Hvis et mindre romertal skrives efter et stort romertal, lægges tallet til det store</li>
+                            <li>Hvis et mindre romertal skrives efter et stort romertal, lægges tallet til det store                         </li>
+                            <li>Hvis et mindre romertal skrives efter et stort romertal, lægges tallet til det store</li>
+                            <li>Hvis et mindre romertal skrives før et større tal, trækkes tallet fra det store</li>
+                        </ul>
+
+
+                        Det er nok at kunne konvertere tal mindre end 3000
+                        Forslag til acceptance test: 1999, 2444, 90
+                        Løsningen skal være skrevet i C# og skal indeholde unit test.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+@section Scripts{
+<script type="text/javascript">
+     'use strict'
+    $(function(){
+        $("#buttonClear").on('click', function(e){
+             var text=$("#inputNumber").val('');
+           clearErrorMessage();
+        });
+
+
+        $("#buttonCalculate").on('click', function(e){
+               var text=$("#inputNumber").val();
+               if(!text||!text.trim()){
+                $("#inputNumber").addClass("is-invalid");
+               return;
+               }
+               text=text.trim().toUpperCase();
+               // check if the input is decimal
+               var regex =/^\d+$/;
+               if(text.match(regex)){
+                   getTranslation(text, '@Url.Action("IntToRoman", "Home")');
+                   return;
+               }
+               //check if the input is valid
+               regex =new RegExp('[^IVXLCDM]|VV|LL|DD|[I]{4}|[X]{4}|[C]{4}|[M]{4}|IL|IC|ID|IM|VX|VL|VC|VD|VM|XD|XM|LC|LD|LM|DM|IIV|IIC|XXL|LLC|CCD|CCM');
+               if(text.match(regex)){
+                      $("#inputNumber").addClass("is-invalid");
+                    return;
+               }
+                getTranslation(text, '@Url.Action("RomanToInt", "Home")');
+          });
+
+    });
+    function getTranslation(number, url){
+        clearErrorMessage();
+            $.ajax({
+              url: url,
+              data: { number:number },
+                cache: false,
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (result) {
+                 if(result.error){
+                     $("#inputNumber").addClass("is-invalid");
+                     $("#invilde-message").text(result.error);
+                     return;
+                 }
+               $("#messageResult").text(result.text);
+              },
+              error: function (err,x ,t) {
+                 console.log(err);
+                 console.log(x);
+                 console.log(t);
+              }
+          });
+    }
+    function clearErrorMessage(){
+           $("#messageResult").text('');
+            $("#inputNumber").removeClass("is-invalid");
+           $("#invilde-message").text("This is neither a roman number nor decimal");
+    }
+</script>
+}
